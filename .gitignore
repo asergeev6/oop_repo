@@ -1,0 +1,42 @@
+# Каталоги сборки (создаются пресетами CMake)
+build/
+out/
+.cache/
+
+# Служебные файлы IDE
+.vs/
+.vscode/
+.idea/
+CMakeSettings.json
+CMakeUserPresets.json
+
+# Отчёты о покрытии
+*.gcda
+*.gcno
+*.info
+coverage-html/
+
+# Объектные файлы и результаты компиляции
+*.o
+*.obj
+*.d
+*.gch
+*.pch
+*.ll
+*.dSYM/
+
+# Библиотеки
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.la
+*.lai
+
+# Исполняемые файлы
+*.exe
+*.out
+*.app
+
+.DS_Store

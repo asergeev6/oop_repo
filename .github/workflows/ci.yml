@@ -1,0 +1,120 @@
+name: CI
+
+# Правки документации сборку не запускают: на код они не влияют,
+# а прогон всех платформ занимает минуты. Если в коммите есть и текст, и код,
+# сборка запустится - достаточно одного изменения вне списка ниже.
+on:
+  push:
+    branches: ["**"]
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+      - "LICENSE"
+      - "cspell.json"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+      - "LICENSE"
+      - "cspell.json"
+
+jobs:
+  # Сборка и тесты на трёх платформах. Это основная проверка.
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Linux (GCC)",     os: ubuntu-latest }
+          - { name: "macOS (Clang)",   os: macos-latest }
+          - { name: "Windows (MSVC)",  os: windows-latest }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Сборка
+        run: |
+          cmake --preset dev
+          cmake --build --preset dev
+
+      - name: Тесты
+        run: ctest --preset dev
+
+  # Санитайзеры: ошибки памяти и неопределённое поведение.
+  sanitizers:
+    name: Санитайзеры (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Сборка с ASan и UBSan
+        run: |
+          cmake --preset asan
+          cmake --build --preset asan
+      - name: Тесты под санитайзерами
+        run: ctest --preset asan
+
+  # Статический анализ.
+  clang-tidy:
+    name: clang-tidy (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Установка clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+      - name: Анализ
+        run: |
+          cmake --preset tidy
+          cmake --build --preset tidy
+
+  # Покрытие кода тестами.
+  coverage:
+    name: Покрытие (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Установка lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+      - name: Сборка и тесты
+        run: |
+          cmake --preset coverage
+          cmake --build --preset coverage
+          ctest --preset coverage
+      - name: Отчёт
+        run: |
+          lcov --capture --directory build/coverage --output-file coverage.info \
+               --ignore-errors mismatch,gcov
+          lcov --remove coverage.info '/usr/*' '*/_deps/*' '*_test.cpp' '*/main.cpp' \
+               --output-file coverage.info --ignore-errors unused
+          lcov --list coverage.info
+          genhtml coverage.info --output-directory coverage-html
+      - name: Сохранить HTML-отчёт
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage-html
+
+  # Замеры производительности: только проверяем, что собираются.
+  # Запускать их в CI бессмысленно - виртуальные машины дают слишком шумные числа.
+  benchmarks:
+    name: Замеры (сборка, Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Сборка замеров
+        run: |
+          cmake --preset bench
+          cmake --build --preset bench
+
+  # Форматирование и правила именования.
+  format:
+    name: Форматирование (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Установка clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Проверка форматирования
+        run: |
+          cmake --preset dev
+          cmake --build --preset dev --target format-check

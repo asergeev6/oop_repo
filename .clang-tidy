@@ -1,0 +1,103 @@
+# Набор проверок для курса ООП. Список намеренно короткий:
+# сюда включено только то, что ловит настоящие ошибки, а не спорные стилевые придирки.
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-vararg,
+  -modernize-use-designated-initializers,
+  -modernize-use-ranges,
+  -modernize-use-trailing-return-type,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-uppercase-literal-suffix
+
+# Про две отключённые проверки, чтобы их не вернули по невнимательности:
+#   special-member-functions требует "правило пяти", а курс намеренно даёт
+#     копирование в основной части, а перемещение - в дополнительной;
+#   pro-bounds-avoid-unchecked-container-access требует .at() везде,
+#     что мешает разговору о цене проверок в горячем коде.
+
+# Предупреждения clang-tidy считаются ошибками сборки.
+WarningsAsErrors: '*'
+
+# Проверяем только свои заголовки из tasks/. GoogleTest и системные не трогаем.
+# Внимание: clang-tidy использует llvm::Regex, конструкции (?!...) в нём НЕТ.
+HeaderFilterRegex: '.*/tasks/.*'
+
+CheckOptions:
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '2'
+
+  # Имена. Классы - с большой буквы, функции и переменные - маленькими через подчёркивание,
+  # как в стандартной библиотеке (push_back, to_string). Поля класса - с подчёркиванием в конце.
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  # Имена из протокола контейнеров и итераторов стандартной библиотеки
+  # пишутся с маленькой буквы по требованию самого стандарта: std::vector<T>::iterator,
+  # value_type, size_type. Переименовать их нельзя - обобщённый код перестанет работать.
+  - key: readability-identifier-naming.ClassIgnoredRegexp
+    value: '^(iterator|const_iterator|reverse_iterator|const_reverse_iterator|value_type|size_type|difference_type|reference|const_reference|pointer|const_pointer|allocator_type)$'
+  - key: readability-identifier-naming.StructIgnoredRegexp
+    value: '^(iterator|const_iterator|reverse_iterator|const_reverse_iterator|value_type|size_type|difference_type|reference|const_reference|pointer|const_pointer|allocator_type)$'
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  # Псевдонимы типов - как в стандартной библиотеке: value_type, size_type, word_t.
+  # Протокол итераторов ТРЕБУЕТ имена value_type и iterator_category (задача 5),
+  # поэтому CamelCase здесь применять нельзя.
+  - key: readability-identifier-naming.TypeAliasCase
+    value: lower_case
+  - key: readability-identifier-naming.TypedefCase
+    value: lower_case
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: '_'
+  - key: readability-identifier-naming.ProtectedMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ProtectedMemberSuffix
+    value: '_'
+
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstexprVariablePrefix
+    value: 'k'
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.GlobalConstantPrefix
+    value: 'k'
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantPrefix
+    value: 'k'
+
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE

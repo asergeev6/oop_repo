@@ -1,0 +1,31 @@
+# Стиль кода курса. Форматирование применяется автоматически:
+#   cmake --build --preset dev --target format        - переформатировать файлы
+#   cmake --build --preset dev --target format-check  - проверить, не меняя
+#
+# Спорить о расстановке пробелов не нужно: это делает clang-format.
+BasedOnStyle: Google
+Standard: c++20
+
+# Открывающая скобка на той же строке, что объявление.
+BreakBeforeBraces: Attach
+
+ColumnLimit: 100
+IndentWidth: 2
+AccessModifierOffset: -2
+NamespaceIndentation: None
+
+# int* p, а не int *p: звёздочка относится к типу.
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Короткие тела разрешены в одну строку только внутри класса.
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# Тело if/for/while всегда в фигурных скобках.
+InsertBraces: true
+
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive

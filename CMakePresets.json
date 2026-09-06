@@ -1,0 +1,153 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "dev",
+      "displayName": "Разработка (обычная сборка с проверкой предупреждений)",
+      "binaryDir": "${sourceDir}/build/dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "OOP_WERROR": "ON"
+      }
+    },
+    {
+      "name": "relaxed",
+      "inherits": "dev",
+      "displayName": "Разработка без -Werror (только пока пишете код)",
+      "binaryDir": "${sourceDir}/build/relaxed",
+      "cacheVariables": {
+        "OOP_WERROR": "OFF"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "dev",
+      "displayName": "Санитайзеры: поиск ошибок памяти и неопределённого поведения",
+      "binaryDir": "${sourceDir}/build/asan",
+      "cacheVariables": {
+        "OOP_SANITIZE": "ON"
+      }
+    },
+    {
+      "name": "coverage",
+      "inherits": "dev",
+      "displayName": "Покрытие кода тестами (Linux/macOS)",
+      "binaryDir": "${sourceDir}/build/coverage",
+      "cacheVariables": {
+        "OOP_COVERAGE": "ON"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "tidy",
+      "inherits": "dev",
+      "displayName": "Статический анализ clang-tidy",
+      "binaryDir": "${sourceDir}/build/tidy",
+      "cacheVariables": {
+        "OOP_TIDY": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Сборка с оптимизацией",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "OOP_WERROR": "ON"
+      }
+    },
+    {
+      "name": "bench",
+      "displayName": "Замеры производительности (Google Benchmark, Release)",
+      "binaryDir": "${sourceDir}/build/bench",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "OOP_WERROR": "ON",
+        "OOP_BENCHMARKS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "configuration": "Debug"
+    },
+    {
+      "name": "relaxed",
+      "configurePreset": "relaxed",
+      "configuration": "Debug"
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "configuration": "Debug"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug"
+    },
+    {
+      "name": "tidy",
+      "configurePreset": "tidy",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release"
+    },
+    {
+      "name": "bench",
+      "configurePreset": "bench",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "stopOnFailure": false
+      }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
